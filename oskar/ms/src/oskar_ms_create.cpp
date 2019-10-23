@@ -194,6 +194,7 @@ oskar_MeasurementSet* oskar_ms_create_impl(const char* file_name,
 #ifdef OSKAR_HAVE_MPI
             Adios2StMan adiosStMan(*mpi_comm);
             if (std::getenv("ADIOS2_ALL_COLUMNS")) {
+                p->adios2_all_columns = true;
                 tab.bindAll(adiosStMan);
             }
             else {

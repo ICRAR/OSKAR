@@ -93,10 +93,6 @@ void oskar_ms_write_coords(oskar_MeasurementSet* p,
     MSMainColumns* msmc = p->msmc;
     if (!msmc) return;
 
-    // Allocate storage for a (u,v,w) coordinate and a visibility weight.
-    Vector<Double> uvw(3);
-    Vector<Float> weight(p->num_pols, 1.0), sigma(p->num_pols, 1.0);
-
     // Get references to columns.
     ArrayColumn<Double>& col_uvw = msmc->uvw();
     ScalarColumn<Int>& col_antenna1 = msmc->antenna1();
@@ -116,20 +112,71 @@ void oskar_ms_write_coords(oskar_MeasurementSet* p,
         oskar_ms_create_baseline_indices(p, num_baselines);
 
     // Loop over rows to add.
-    for (unsigned int r = 0; r < num_baselines; ++r)
+    if (p->adios2_all_columns)
     {
-        // Write the data to the Measurement Set.
-        unsigned int row = r + start_row;
-        uvw(0) = uu[r]; uvw(1) = vv[r]; uvw(2) = ww[r];
-        col_uvw.put(row, uvw);
-        col_antenna1.put(row, p->a1[r]);
-        col_antenna2.put(row, p->a2[r]);
-        col_weight.put(row, weight);
-        col_sigma.put(row, sigma);
-        col_exposure.put(row, exposure_sec);
-        col_interval.put(row, interval_sec);
-        col_time.put(row, time_stamp);
-        col_timeCentroid.put(row, time_stamp);
+        // Prepare the data into single blocks
+        Matrix<Double> uvw(3, num_baselines);
+        for (unsigned int r = 0; r < num_baselines; ++r)
+        {
+            uvw(0, r) = uu[r]; uvw(1, r) = vv[r]; uvw(2, r) = ww[r];
+        }
+        Matrix<Float> weight(p->num_pols, num_baselines, 1.0);
+        Matrix<Float> sigma(p->num_pols, num_baselines, 1.0);
+        Vector<Int> antenna_data(num_baselines);
+        Vector<Double> exposure_data(num_baselines, exposure_sec);
+        Vector<Double> interval_data(num_baselines, interval_sec);
+        Vector<Double> time_stamp_data(num_baselines, time_stamp);
+
+        RefRows row_range(start_row, start_row + num_baselines - 1);
+
+        // Write scalar columns
+        std::copy(p->a1, p->a1 + num_baselines, antenna_data.begin());
+        col_antenna1.putColumnCells(row_range, antenna_data);
+        std::copy(p->a2, p->a2 + num_baselines, antenna_data.begin());
+        col_antenna2.putColumnCells(row_range, antenna_data);
+        col_exposure.putColumnCells(row_range, exposure_data);
+        col_interval.putColumnCells(row_range, interval_data);
+        col_time.putColumnCells(row_range, time_stamp_data);
+        col_timeCentroid.putColumnCells(row_range, time_stamp_data);
+
+        // Write array columns
+        Slicer row_range_slicer{
+            IPosition{1, start_row},
+            IPosition{1, num_baselines}
+        };
+        Slicer array_section{
+            IPosition{1, 0},
+            IPosition{1, p->num_pols}
+        };
+        col_weight.putColumnRange(row_range_slicer, array_section, weight);
+        col_sigma.putColumnRange(row_range_slicer, array_section, sigma);
+        array_section = Slicer{
+            IPosition{1, 0},
+            IPosition{1, 3}
+        };
+        col_uvw.putColumnRange(row_range_slicer, array_section, uvw);
+
+    }
+    else
+    {
+        // Allocate storage for a (u,v,w) coordinate and a visibility weight.
+        Vector<Double> uvw(3);
+        Vector<Float> weight(p->num_pols, 1.0), sigma(p->num_pols, 1.0);
+        for (unsigned int r = 0; r < num_baselines; ++r)
+        {
+            // Write the data to the Measurement Set.
+            unsigned int row = r + start_row;
+            uvw(0) = uu[r]; uvw(1) = vv[r]; uvw(2) = ww[r];
+            col_uvw.put(row, uvw);
+            col_antenna1.put(row, p->a1[r]);
+            col_antenna2.put(row, p->a2[r]);
+            col_weight.put(row, weight);
+            col_sigma.put(row, sigma);
+            col_exposure.put(row, exposure_sec);
+            col_interval.put(row, interval_sec);
+            col_time.put(row, time_stamp);
+            col_timeCentroid.put(row, time_stamp);
+        }
     }
 
     // Update time range if required.
