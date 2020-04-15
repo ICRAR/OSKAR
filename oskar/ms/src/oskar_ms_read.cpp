@@ -37,7 +37,7 @@ using namespace casacore;
 
 template<typename T>
 void copy_array(const oskar_MeasurementSet* p, const char* column,
-        unsigned int start_row, unsigned int num_rows,
+        size_t start_row, size_t num_rows,
         size_t data_size_bytes, void* data, size_t* required_size,
         int* status)
 {
@@ -60,7 +60,7 @@ void copy_array(const oskar_MeasurementSet* p, const char* column,
 
 template<typename T>
 void copy_scalar(const oskar_MeasurementSet* p, const char* column,
-        unsigned int start_row, unsigned int num_rows,
+        size_t start_row, size_t num_rows,
         size_t data_size_bytes, void* data, size_t* required_size,
         int* status)
 {
@@ -82,7 +82,7 @@ void copy_scalar(const oskar_MeasurementSet* p, const char* column,
 }
 
 void oskar_ms_read_column(const oskar_MeasurementSet* p, const char* column,
-        unsigned int start_row, unsigned int num_rows,
+        size_t start_row, size_t num_rows,
         size_t data_size_bytes, void* data, size_t* required_size_bytes,
         int* status)
 {
@@ -99,7 +99,7 @@ void oskar_ms_read_column(const oskar_MeasurementSet* p, const char* column,
     if (num_rows == 0) return;
 
     // Check that the row is within the table bounds.
-    unsigned int total_rows = p->ms->nrow();
+    auto total_rows = p->ms->nrow();
     if (start_row >= total_rows)
     {
         *status = OSKAR_ERR_MS_OUT_OF_RANGE;
@@ -198,13 +198,13 @@ void oskar_ms_read_column(const oskar_MeasurementSet* p, const char* column,
 
 template <typename T>
 void oskar_ms_read_coords(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int num_baselines,
+        size_t start_row, unsigned int num_baselines,
         T* uu, T* vv, T* ww, int* status)
 {
     if (!p->ms || !p->msmc || num_baselines == 0) return;
 
     // Check that the row is within the table bounds.
-    unsigned int total_rows = p->ms->nrow();
+    auto total_rows = p->ms->nrow();
     if (start_row >= total_rows)
     {
         *status = OSKAR_ERR_MS_OUT_OF_RANGE;
@@ -227,14 +227,14 @@ void oskar_ms_read_coords(oskar_MeasurementSet* p,
 }
 
 void oskar_ms_read_coords_d(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int num_baselines,
+        size_t start_row, unsigned int num_baselines,
         double* uu, double* vv, double* ww, int* status)
 {
     oskar_ms_read_coords(p, start_row, num_baselines, uu, vv, ww, status);
 }
 
 void oskar_ms_read_coords_f(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int num_baselines,
+        size_t start_row, unsigned int num_baselines,
         float* uu, float* vv, float* ww, int* status)
 {
     oskar_ms_read_coords(p, start_row, num_baselines, uu, vv, ww, status);
@@ -242,7 +242,7 @@ void oskar_ms_read_coords_f(oskar_MeasurementSet* p,
 
 template <typename T>
 void oskar_ms_read_vis(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int start_channel,
+        size_t start_row, unsigned int start_channel,
         unsigned int num_channels, unsigned int num_baselines,
         const char* column, T* vis, int* status)
 {
@@ -262,7 +262,7 @@ void oskar_ms_read_vis(oskar_MeasurementSet* p,
     }
 
     // Check that the row is within the table bounds.
-    unsigned int total_rows = p->ms->nrow();
+    auto total_rows = p->ms->nrow();
     if (start_row >= total_rows)
     {
         *status = OSKAR_ERR_MS_OUT_OF_RANGE;
@@ -303,7 +303,7 @@ void oskar_ms_read_vis(oskar_MeasurementSet* p,
 }
 
 void oskar_ms_read_vis_d(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int start_channel,
+        size_t start_row, unsigned int start_channel,
         unsigned int num_channels, unsigned int num_baselines,
         const char* column, double* vis, int* status)
 {
@@ -312,7 +312,7 @@ void oskar_ms_read_vis_d(oskar_MeasurementSet* p,
 }
 
 void oskar_ms_read_vis_f(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int start_channel,
+        size_t start_row, unsigned int start_channel,
         unsigned int num_channels, unsigned int num_baselines,
         const char* column, float* vis, int* status)
 {

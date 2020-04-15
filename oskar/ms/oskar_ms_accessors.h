@@ -98,7 +98,7 @@ size_t* oskar_ms_column_shape(const oskar_MeasurementSet* p, const char* column,
  * @param[in] num    Total number of rows in the Measurement Set.
  */
 OSKAR_MS_EXPORT
-void oskar_ms_ensure_num_rows(oskar_MeasurementSet* p, unsigned int num);
+void oskar_ms_ensure_num_rows(oskar_MeasurementSet* p, size_t num);
 
 /**
  * @brief
@@ -148,7 +148,7 @@ unsigned int oskar_ms_num_pols(const oskar_MeasurementSet* p);
  * Returns the number of rows in the main table.
  */
 OSKAR_MS_EXPORT
-unsigned int oskar_ms_num_rows(const oskar_MeasurementSet* p);
+size_t oskar_ms_num_rows(const oskar_MeasurementSet* p);
 
 /**
  * @brief

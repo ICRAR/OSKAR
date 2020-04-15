@@ -69,7 +69,7 @@ extern "C" {
  */
 OSKAR_MS_EXPORT
 void oskar_ms_write_coords_d(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int num_baselines,
+        size_t start_row, unsigned int num_baselines,
         const double* uu, const double* vv, const double* ww,
         double exposure_sec, double interval_sec, double time_stamp);
 
@@ -103,7 +103,7 @@ void oskar_ms_write_coords_d(oskar_MeasurementSet* p,
  */
 OSKAR_MS_EXPORT
 void oskar_ms_write_coords_f(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int num_baselines,
+        size_t start_row, unsigned int num_baselines,
         const float* uu, const float* vv, const float* ww,
         double exposure_sec, double interval_sec, double time_stamp);
 
@@ -136,7 +136,7 @@ void oskar_ms_write_coords_f(oskar_MeasurementSet* p,
  */
 OSKAR_MS_EXPORT
 void oskar_ms_write_vis_d(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int start_channel,
+        size_t start_row, unsigned int start_channel,
         unsigned int num_channels, unsigned int num_baselines,
         const double* vis);
 
@@ -169,7 +169,7 @@ void oskar_ms_write_vis_d(oskar_MeasurementSet* p,
  */
 OSKAR_MS_EXPORT
 void oskar_ms_write_vis_f(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int start_channel,
+        size_t start_row, unsigned int start_channel,
         unsigned int num_channels, unsigned int num_baselines,
         const float* vis);
 

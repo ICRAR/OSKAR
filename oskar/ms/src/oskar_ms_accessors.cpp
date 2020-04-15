@@ -110,10 +110,10 @@ size_t* oskar_ms_column_shape(const oskar_MeasurementSet* p, const char* column,
     return t;
 }
 
-void oskar_ms_ensure_num_rows(oskar_MeasurementSet* p, unsigned int num)
+void oskar_ms_ensure_num_rows(oskar_MeasurementSet* p, size_t num)
 {
     if (!p->ms) return;
-    unsigned int curr_rows = p->ms->nrow();
+    auto curr_rows = p->ms->nrow();
     if (num > curr_rows)
         p->ms->addRow(num - curr_rows);
 }
@@ -138,7 +138,7 @@ unsigned int oskar_ms_num_pols(const oskar_MeasurementSet* p)
     return p->num_pols;
 }
 
-unsigned int oskar_ms_num_rows(const oskar_MeasurementSet* p)
+size_t oskar_ms_num_rows(const oskar_MeasurementSet* p)
 {
     if (!p->ms) return 0;
     return p->ms->nrow();

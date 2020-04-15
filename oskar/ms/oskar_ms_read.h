@@ -56,7 +56,7 @@ extern "C" {
  */
 OSKAR_MS_EXPORT
 void oskar_ms_read_column(const oskar_MeasurementSet* p, const char* column,
-        unsigned int start_row, unsigned int num_rows,
+        size_t start_row, size_t num_rows,
         size_t data_size_bytes, void* data, size_t* required_size_bytes,
         int* status);
 
@@ -78,7 +78,7 @@ void oskar_ms_read_column(const oskar_MeasurementSet* p, const char* column,
  */
 OSKAR_MS_EXPORT
 void oskar_ms_read_coords_d(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int num_baselines,
+        size_t start_row, unsigned int num_baselines,
         double* uu, double* vv, double* ww, int* status);
 
 /**
@@ -99,7 +99,7 @@ void oskar_ms_read_coords_d(oskar_MeasurementSet* p,
  */
 OSKAR_MS_EXPORT
 void oskar_ms_read_coords_f(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int num_baselines,
+        size_t start_row, unsigned int num_baselines,
         float* uu, float* vv, float* ww, int* status);
 
 /**
@@ -126,7 +126,7 @@ void oskar_ms_read_coords_f(oskar_MeasurementSet* p,
  */
 OSKAR_MS_EXPORT
 void oskar_ms_read_vis_d(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int start_channel,
+        size_t start_row, unsigned int start_channel,
         unsigned int num_channels, unsigned int num_baselines,
         const char* column, double* vis, int* status);
 
@@ -154,7 +154,7 @@ void oskar_ms_read_vis_d(oskar_MeasurementSet* p,
  */
 OSKAR_MS_EXPORT
 void oskar_ms_read_vis_f(oskar_MeasurementSet* p,
-        unsigned int start_row, unsigned int start_channel,
+        size_t start_row, unsigned int start_channel,
         unsigned int num_channels, unsigned int num_baselines,
         const char* column, float* vis, int* status);
 

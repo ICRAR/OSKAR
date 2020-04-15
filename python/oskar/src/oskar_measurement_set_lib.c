@@ -278,10 +278,10 @@ static PyObject* ensure_num_rows(PyObject* self, PyObject* args)
 {
     oskar_MeasurementSet* h = 0;
     PyObject* capsule = 0;
-    int num = 0;
-    if (!PyArg_ParseTuple(args, "Oi", &capsule, &num)) return 0;
+    Py_ssize_t num = 0;
+    if (!PyArg_ParseTuple(args, "On", &capsule, &num)) return 0;
     if (!(h = (oskar_MeasurementSet*) get_handle(capsule, name))) return 0;
-    oskar_ms_ensure_num_rows(h, (unsigned int) num);
+    oskar_ms_ensure_num_rows(h, (size_t) num);
     return Py_BuildValue("");
 }
 
@@ -332,7 +332,7 @@ static PyObject* num_rows(PyObject* self, PyObject* args)
     PyObject* capsule = 0;
     if (!PyArg_ParseTuple(args, "O", &capsule)) return 0;
     if (!(h = (oskar_MeasurementSet*) get_handle(capsule, name))) return 0;
-    return Py_BuildValue("i", oskar_ms_num_rows(h));
+    return Py_BuildValue("n", (Py_ssize_t)oskar_ms_num_rows(h));
 }
 
 
@@ -396,9 +396,10 @@ static PyObject* read_column(PyObject* self, PyObject* args)
     size_t i = 0, ndim = 0, required_size = 0, *shape = 0;
     npy_intp *dims = 0;
     PyArrayObject* data = 0;
-    int num_rows = 0, start_row = 0, status = 0, type = 0;
+    int num_rows = 0, status = 0, type = 0;
+    Py_ssize_t start_row = 0;
     const char* column = 0;
-    if (!PyArg_ParseTuple(args, "Osii", &capsule, &column, &start_row,
+    if (!PyArg_ParseTuple(args, "Osni", &capsule, &column, &start_row,
             &num_rows))
         return 0;
     if (!(h = (oskar_MeasurementSet*) get_handle(capsule, name))) return 0;
@@ -426,7 +427,7 @@ static PyObject* read_column(PyObject* self, PyObject* args)
 
     /* Read the data into the numpy array. */
     Py_BEGIN_ALLOW_THREADS
-    oskar_ms_read_column(h, column, start_row, num_rows,
+    oskar_ms_read_column(h, column, (size_t)start_row, num_rows,
             PyArray_NBYTES(data), PyArray_DATA(data), &required_size, &status);
     Py_END_ALLOW_THREADS
 
@@ -450,8 +451,9 @@ static PyObject* read_coords(PyObject* self, PyObject* args)
     PyObject *capsule = 0, *tuple = 0;
     PyArrayObject *uu = 0, *vv = 0, *ww = 0;
     npy_intp dims[1];
-    int start_row = 0, num_rows = 0, status = 0;
-    if (!PyArg_ParseTuple(args, "Oii", &capsule, &start_row, &num_rows))
+    int num_rows = 0, status = 0;
+    Py_ssize_t start_row = 0;
+    if (!PyArg_ParseTuple(args, "Oni", &capsule, &start_row, &num_rows))
         return 0;
     if (!(h = (oskar_MeasurementSet*) get_handle(capsule, name))) return 0;
 
@@ -463,7 +465,7 @@ static PyObject* read_coords(PyObject* self, PyObject* args)
 
     /* Read the coordinates. */
     Py_BEGIN_ALLOW_THREADS
-    oskar_ms_read_coords_d(h, start_row, num_rows,
+    oskar_ms_read_coords_d(h, (size_t)start_row, num_rows,
             (double*)PyArray_DATA(uu),
             (double*)PyArray_DATA(vv),
             (double*)PyArray_DATA(ww), &status);
@@ -492,10 +494,11 @@ static PyObject* read_vis(PyObject* self, PyObject* args)
     PyObject *capsule = 0;
     PyArrayObject *vis = 0;
     npy_intp dims[3];
-    int start_row = 0, num_baselines = 0;
+    int num_baselines = 0;
     int start_channel = 0, num_channels = 0, status = 0;
+    Py_ssize_t start_row = 0;
     const char* column_name = 0;
-    if (!PyArg_ParseTuple(args, "Oiiiis", &capsule, &start_row, &start_channel,
+    if (!PyArg_ParseTuple(args, "Oniiis", &capsule, &start_row, &start_channel,
             &num_channels, &num_baselines, &column_name))
         return 0;
     if (!(h = (oskar_MeasurementSet*) get_handle(capsule, name))) return 0;
@@ -508,7 +511,7 @@ static PyObject* read_vis(PyObject* self, PyObject* args)
 
     /* Read the visibility data. */
     Py_BEGIN_ALLOW_THREADS
-    oskar_ms_read_vis_f(h, start_row, start_channel,
+    oskar_ms_read_vis_f(h, (size_t)start_row, start_channel,
             num_channels, num_baselines, column_name,
             (float*)PyArray_DATA(vis), &status);
     Py_END_ALLOW_THREADS
@@ -566,9 +569,10 @@ static PyObject* write_coords(PyObject* self, PyObject* args)
     PyObject *capsule = 0;
     PyObject *obj[] = {0, 0, 0};
     PyArrayObject *uu = 0, *vv = 0, *ww = 0;
-    int start_row = 0, num_baselines = 0;
+    int num_baselines = 0;
+    Py_ssize_t start_row = 0;
     double exposure_sec = 0.0, interval_sec = 0.0, time_stamp = 0.0;
-    if (!PyArg_ParseTuple(args, "OiiOOOddd", &capsule,
+    if (!PyArg_ParseTuple(args, "OniOOOddd", &capsule,
             &start_row, &num_baselines, &obj[0], &obj[1], &obj[2],
             &exposure_sec, &interval_sec, &time_stamp))
         return 0;
@@ -593,13 +597,13 @@ static PyObject* write_coords(PyObject* self, PyObject* args)
     /* Write the coordinates. */
     Py_BEGIN_ALLOW_THREADS
     if (PyArray_TYPE(uu) == NPY_DOUBLE)
-        oskar_ms_write_coords_d(h, start_row, num_baselines,
+        oskar_ms_write_coords_d(h, (size_t)start_row, num_baselines,
                 (const double*)PyArray_DATA(uu),
                 (const double*)PyArray_DATA(vv),
                 (const double*)PyArray_DATA(ww),
                 exposure_sec, interval_sec, time_stamp);
     else
-        oskar_ms_write_coords_f(h, start_row, num_baselines,
+        oskar_ms_write_coords_f(h, (size_t)start_row, num_baselines,
                 (const float*)PyArray_DATA(uu),
                 (const float*)PyArray_DATA(vv),
                 (const float*)PyArray_DATA(ww),
@@ -625,9 +629,10 @@ static PyObject* write_vis(PyObject* self, PyObject* args)
     PyObject *capsule = 0;
     PyObject *obj = 0;
     PyArrayObject *vis = 0;
-    int start_row = 0, start_channel = 0;
+    int start_channel = 0;
     int num_channels = 0, num_baselines = 0, num_pols = 0;
-    if (!PyArg_ParseTuple(args, "OiiiiO", &capsule, &start_row,
+    Py_ssize_t start_row = 0;
+    if (!PyArg_ParseTuple(args, "OniiiO", &capsule, &start_row,
             &start_channel, &num_channels, &num_baselines, &obj))
         return 0;
     if (!(h = (oskar_MeasurementSet*) get_handle(capsule, name))) return 0;
@@ -656,10 +661,10 @@ static PyObject* write_vis(PyObject* self, PyObject* args)
     /* Write the visibilities. */
     Py_BEGIN_ALLOW_THREADS
     if (PyArray_TYPE(vis) == NPY_DOUBLE)
-        oskar_ms_write_vis_d(h, start_row, start_channel, num_channels,
+        oskar_ms_write_vis_d(h, (size_t)start_row, start_channel, num_channels,
                 num_baselines, (const double*)PyArray_DATA(vis));
     else
-        oskar_ms_write_vis_f(h, start_row, start_channel, num_channels,
+        oskar_ms_write_vis_f(h, (size_t)start_row, start_channel, num_channels,
                 num_baselines, (const float*)PyArray_DATA(vis));
     Py_END_ALLOW_THREADS
 
